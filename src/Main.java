@@ -26,12 +26,16 @@ public class Main{
     private static void handleChoice(int choice, Bank bank, Scanner scanner){
         switch (choice){
             case 1:
+                System.out.println("1. Basic\n2. Savings\n3. Current\nChoose Account Type:\n");
+                int type = scanner.nextInt();
+
                 System.out.println("Enter Your Name: ");
                 scanner.nextLine();
                 String name = scanner.nextLine();
                 System.out.println("Enter Initial Balance: ");
                 double balance = 0;
                 boolean valid = true;
+
                 try {
                     balance = scanner.nextInt();
                 }
@@ -42,8 +46,24 @@ public class Main{
                     valid = false;
                 }
                 if(valid){
-                    BankAccount acc = bank.createAccount(name, balance);
-                    System.out.println("Account Created Successfully.\n" + acc);
+                    BankAccount acc = null;
+                    String message = "";
+                    if(type == 1){
+                        acc = new BankAccount(name, balance);
+                        message = "Account Created Successfully.\n";
+                    } else if(type == 2){
+                        acc = new SavingsAccount(name, balance, 0.05);
+                        message = "Savings Account Created Successfully. Interest Rate: 5%.\n";
+                    } else if(type == 3){
+                        acc = new CurrentAccount(name, balance, 5000);
+                        message = "Current Account Created Successfully. Overdraft Limit: 5000.\n";
+                    }
+
+                    if(acc != null){
+                        bank.addAccount(acc);
+                        System.out.println(message + acc);
+                    }
+
                 }
                 break;
 

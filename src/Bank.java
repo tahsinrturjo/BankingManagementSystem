@@ -8,9 +8,8 @@ public class Bank {
         accounts = FileManager.loadAccounts();;
     }
 
-    public BankAccount createAccount(String name, double initBalance){
+    public BankAccount addAccount(BankAccount account){
         String accNo = "ACC" + String.format("%03d", accounts.size() + 1);
-        BankAccount account = new BankAccount(name, initBalance);
         account.setAccountNumber(accNo);
         accounts.add(account);
         FileManager.saveAccounts(accounts);

@@ -12,7 +12,17 @@ public class FileManager {
 
             for (int i = 0; i < accounts.size(); i++) {
                 BankAccount acc = accounts.get(i);
-                bw.write(acc.getAccountNumber() + "," + acc.getOwnerName() + "," + acc.getBalance());
+
+                if (acc instanceof SavingsAccount) {
+                    SavingsAccount sa = (SavingsAccount) acc;
+                    bw.write(acc.getAccountNumber() + ",SAVINGS," + acc.getOwnerName() + "," + acc.getBalance() + "," + sa.getInterestRate());
+                } else if (acc instanceof CurrentAccount) {
+                    CurrentAccount ca = (CurrentAccount) acc;
+                    bw.write(acc.getAccountNumber() + ",CURRENT," + acc.getOwnerName() + "," + acc.getBalance() + "," + ca.getOverdraftLimit());
+                } else {
+                    bw.write(acc.getAccountNumber() + ",BASIC," + acc.getOwnerName() + "," + acc.getBalance());
+                }
+
                 bw.newLine();
             }
 
@@ -27,7 +37,7 @@ public class FileManager {
         File file = new File(FILE_NAME);
 
         if (!file.exists()) {
-            return accounts; // no file yet, return empty list
+            return accounts;
         }
 
         try {
@@ -37,15 +47,28 @@ public class FileManager {
 
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    String accNo = parts[0];
-                    String name = parts[1];
-                    double balance = Double.parseDouble(parts[2]);
 
-                    BankAccount acc = new BankAccount(name, balance);
-                    acc.setAccountNumber(accNo);
-                    accounts.add(acc);
+                if (parts.length < 4) continue; // skip malformed lines
+
+                String accNo   = parts[0];
+                String type    = parts[1];
+                String name    = parts[2];
+                double balance = Double.parseDouble(parts[3]);
+
+                BankAccount acc = null;
+
+                if (type.equals("SAVINGS") && parts.length == 5) {
+                    double interestRate = Double.parseDouble(parts[4]);
+                    acc = new SavingsAccount(name, balance, interestRate);
+                } else if (type.equals("CURRENT") && parts.length == 5) {
+                    double overdraftLimit = Double.parseDouble(parts[4]);
+                    acc = new CurrentAccount(name, balance, overdraftLimit);
+                } else {
+                    acc = new BankAccount(name, balance);
                 }
+
+                acc.setAccountNumber(accNo);
+                accounts.add(acc);
             }
 
             br.close();

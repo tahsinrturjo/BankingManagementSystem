@@ -3,6 +3,8 @@ public class BankAccount {
     private String ownerName;
     private double balance;
 
+    public BankAccount(){}
+
     public BankAccount(String ownerName, double balance){
         this.ownerName = ownerName;
         this.balance = balance;
@@ -47,7 +49,7 @@ public class BankAccount {
 
     public boolean withdraw(double amount){
         if(this.balance == 0){
-            System.out.println("Withdrawal amount must be greater than zero.");
+            System.out.println("Withdrawal cannot be zero.");
         }
         if(this.balance < amount){
             System.out.println("Insufficient Balance");
@@ -63,5 +65,49 @@ public class BankAccount {
     public String toString() {
         return String.format("Account [%s] | Owner: %s | Balance: %.2f",
                 accountNumber, ownerName, balance);
+    }
+}
+
+class SavingsAccount extends BankAccount{
+    private double interestRate;
+
+    public SavingsAccount(String ownerName, double balance, double interestRate){
+        super(ownerName, balance);
+        this.interestRate = interestRate;
+    }
+
+    public double getInterestRate() {
+        return interestRate;
+    }
+
+    public void applyInterest(){
+        double interest = getBalance() * getInterestRate();
+        deposit(interest);
+    }
+}
+
+
+class CurrentAccount extends BankAccount{
+    private double overdraftLimit;
+
+    public CurrentAccount(String ownerName, double balance, double overdraftLimit){
+        super(ownerName, balance);
+        this.overdraftLimit = overdraftLimit;
+    }
+
+    public double getOverdraftLimit() {
+        return overdraftLimit;
+    }
+
+    @Override
+    public boolean withdraw(double amount) {
+        if(getBalance() - amount >= -overdraftLimit){
+            setBalance(getBalance() - amount);
+            return true;
+        }
+        else {
+            System.out.println("Overdraft Limit Exceeded. Your Limit is: " + getOverdraftLimit());
+            return false;
+        }
     }
 }
