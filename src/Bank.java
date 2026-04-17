@@ -6,6 +6,7 @@ public class Bank {
 
     public Bank(){
         accounts = FileManager.loadAccounts();;
+        FileManager.loadTransactions(accounts);
     }
 
     public BankAccount addAccount(BankAccount account){
@@ -50,5 +51,6 @@ public class Bank {
 
     public void save() {
         FileManager.saveAccounts(accounts);
+        FileManager.saveTransactions(accounts);
     }
 }

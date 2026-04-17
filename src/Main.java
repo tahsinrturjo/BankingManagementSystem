@@ -8,7 +8,7 @@ public class Main{
         Bank bank = new Bank();
         int choice = 0;
 
-        while(choice != 7){
+        while(choice != 8){
             showMenu();
             System.out.println("Enter Your Option: ");
             choice = scanner.nextInt();
@@ -20,7 +20,8 @@ public class Main{
 
     private static void showMenu(){
         System.out.println("\nWelcome to Banking System TRT\n");
-        System.out.println("1. Create Account \n2. Deposit \n3. Withdraw \n4. View Balance \n5. See All Accounts\n6. Delete Account\n7. Exit");
+        System.out.println("1. Create Account \n2. Deposit \n3. Withdraw \n4. View Balance \n5. See All Accounts");
+        System.out.println("6. Delete Account\n7. View Transaction History\n8. Exit");
     }
 
     private static void handleChoice(int choice, Bank bank, Scanner scanner){
@@ -163,6 +164,20 @@ public class Main{
                 break;
 
             case 7:
+                System.out.println("Enter Your Account Number: ");
+                scanner.nextLine();
+                String accNo7 = scanner.nextLine();
+                BankAccount acc7 = bank.findAccount(accNo7);
+
+                if(acc7 != null){
+                    acc7.printHistory();
+                }
+                else{
+                    System.out.println("Account not Found");
+                }
+                break;
+
+            case 8:
                 System.out.println("Thank You for Using our System. GoodBye");
                 break;
 

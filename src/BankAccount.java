@@ -1,13 +1,17 @@
+import java.util.ArrayList;
+
 public class BankAccount {
     private String accountNumber;
     private String ownerName;
     private double balance;
+    protected ArrayList<Transaction> transactions;
 
     public BankAccount(){}
 
     public BankAccount(String ownerName, double balance){
         this.ownerName = ownerName;
         this.balance = balance;
+        this.transactions = new ArrayList<>();
     }
 
     //GETTERS
@@ -43,10 +47,12 @@ public class BankAccount {
         }
         else{
             balance += amount;
+            transactions.add(new Transaction("Deposit", amount));
             return true;
         }
     }
 
+    //METHODS
     public boolean withdraw(double amount){
         if(this.balance == 0){
             System.out.println("Withdrawal cannot be zero.");
@@ -57,7 +63,19 @@ public class BankAccount {
         }
         else {
             balance -= amount;
+            transactions.add(new Transaction("Withdrawal", amount));
             return true;
+        }
+    }
+
+    public void printHistory(){
+        if(transactions.isEmpty()){
+            System.out.println("No Transaction History");
+        }
+        else{
+            for(int i = 0; i < transactions.size(); i++ ){
+                System.out.println(transactions.get(i));
+            }
         }
     }
 
@@ -103,6 +121,7 @@ class CurrentAccount extends BankAccount{
     public boolean withdraw(double amount) {
         if(getBalance() - amount >= -overdraftLimit){
             setBalance(getBalance() - amount);
+            transactions.add(new Transaction("Withdrawal", amount));
             return true;
         }
         else {

@@ -1,9 +1,11 @@
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class FileManager {
 
     private static final String FILE_NAME = "accounts.csv";
+    private static final String TRANSACTIONS_FILE = "transactions.csv";
 
     public static void saveAccounts(ArrayList<BankAccount> accounts) {
         try {
@@ -29,6 +31,65 @@ public class FileManager {
             bw.close();
         } catch (IOException e) {
             System.out.println("Error saving accounts: " + e.getMessage());
+        }
+    }
+
+    public static void saveTransactions(ArrayList<BankAccount> accounts) {
+        try {
+            FileWriter fw = new FileWriter(TRANSACTIONS_FILE);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            for (int i = 0; i < accounts.size(); i++) {
+                BankAccount acc = accounts.get(i);
+                ArrayList<Transaction> transactions = acc.transactions;
+
+                for (int j = 0; j < transactions.size(); j++) {
+                    Transaction t = transactions.get(j);
+                    bw.write(acc.getAccountNumber() + "," + t.getType() + "," + t.getAmount() + "," + t.getDateTime());
+                    bw.newLine();
+                }
+            }
+
+            bw.close();
+        } catch (IOException e) {
+            System.out.println("Error saving transactions: " + e.getMessage());
+        }
+    }
+
+    public static void loadTransactions(ArrayList<BankAccount> accounts) {
+        File file = new File(TRANSACTIONS_FILE);
+
+        if (!file.exists()) {
+            return;
+        }
+
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+
+                if (parts.length < 4) continue;
+
+                String accNo    = parts[0];
+                String type     = parts[1];
+                double amount   = Double.parseDouble(parts[2]);
+                LocalDateTime dt = LocalDateTime.parse(parts[3]);
+
+                // find the matching account and add the transaction to it
+                for (int i = 0; i < accounts.size(); i++) {
+                    if (accounts.get(i).getAccountNumber().equals(accNo)) {
+                        accounts.get(i).transactions.add(new Transaction(type, amount, dt));
+                        break;
+                    }
+                }
+            }
+
+            br.close();
+        } catch (IOException e) {
+            System.out.println("Error loading transactions: " + e.getMessage());
         }
     }
 
