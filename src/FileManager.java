@@ -17,12 +17,12 @@ public class FileManager {
 
                 if (acc instanceof SavingsAccount) {
                     SavingsAccount sa = (SavingsAccount) acc;
-                    bw.write(acc.getAccountNumber() + ",SAVINGS," + acc.getOwnerName() + "," + acc.getBalance() + "," + sa.getInterestRate());
+                    bw.write(acc.getAccountNumber() + ",SAVINGS," + acc.getOwnerName() + "," + acc.getBalance() + "," + sa.getInterestRate() + "," + sa.getPassword());
                 } else if (acc instanceof CurrentAccount) {
                     CurrentAccount ca = (CurrentAccount) acc;
-                    bw.write(acc.getAccountNumber() + ",CURRENT," + acc.getOwnerName() + "," + acc.getBalance() + "," + ca.getOverdraftLimit());
+                    bw.write(acc.getAccountNumber() + ",CURRENT," + acc.getOwnerName() + "," + acc.getBalance() + "," + ca.getOverdraftLimit() + "," + ca.getPassword());
                 } else {
-                    bw.write(acc.getAccountNumber() + ",BASIC," + acc.getOwnerName() + "," + acc.getBalance());
+                    bw.write(acc.getAccountNumber() + ",BASIC," + acc.getOwnerName() + "," + acc.getBalance() + "," + acc.getPassword());
                 }
 
                 bw.newLine();
@@ -32,6 +32,56 @@ public class FileManager {
         } catch (IOException e) {
             System.out.println("Error saving accounts: " + e.getMessage());
         }
+    }
+
+    public static ArrayList<BankAccount> loadAccounts() {
+        ArrayList<BankAccount> accounts = new ArrayList<>();
+        File file = new File(FILE_NAME);
+
+        if (!file.exists()) {
+            return accounts;
+        }
+
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+
+                if (parts.length < 4) continue; // skip malformed lines
+
+                String accNo   = parts[0];
+                String type    = parts[1];
+                String name    = parts[2];
+                double balance = Double.parseDouble(parts[3]);
+
+                BankAccount acc = null;
+
+                if (type.equals("SAVINGS") && parts.length == 6) {
+                    double interestRate = Double.parseDouble(parts[4]);
+                    String password = parts[5];
+                    acc = new SavingsAccount(name, balance, interestRate, password);
+                } else if (type.equals("CURRENT") && parts.length == 6) {
+                    double overdraftLimit = Double.parseDouble(parts[4]);
+                    String password = parts[5];
+                    acc = new CurrentAccount(name, balance, overdraftLimit, password);
+                } else {
+                    String password = parts[4];
+                    acc = new BankAccount(name, balance, password);
+                }
+
+                acc.setAccountNumber(accNo);
+                accounts.add(acc);
+            }
+
+            br.close();
+        } catch (IOException e) {
+            System.out.println("Error loading accounts: " + e.getMessage());
+        }
+
+        return accounts;
     }
 
     public static void saveTransactions(ArrayList<BankAccount> accounts) {
@@ -91,52 +141,5 @@ public class FileManager {
         } catch (IOException e) {
             System.out.println("Error loading transactions: " + e.getMessage());
         }
-    }
-
-    public static ArrayList<BankAccount> loadAccounts() {
-        ArrayList<BankAccount> accounts = new ArrayList<>();
-        File file = new File(FILE_NAME);
-
-        if (!file.exists()) {
-            return accounts;
-        }
-
-        try {
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-
-                if (parts.length < 4) continue; // skip malformed lines
-
-                String accNo   = parts[0];
-                String type    = parts[1];
-                String name    = parts[2];
-                double balance = Double.parseDouble(parts[3]);
-
-                BankAccount acc = null;
-
-                if (type.equals("SAVINGS") && parts.length == 5) {
-                    double interestRate = Double.parseDouble(parts[4]);
-                    acc = new SavingsAccount(name, balance, interestRate);
-                } else if (type.equals("CURRENT") && parts.length == 5) {
-                    double overdraftLimit = Double.parseDouble(parts[4]);
-                    acc = new CurrentAccount(name, balance, overdraftLimit);
-                } else {
-                    acc = new BankAccount(name, balance);
-                }
-
-                acc.setAccountNumber(accNo);
-                accounts.add(acc);
-            }
-
-            br.close();
-        } catch (IOException e) {
-            System.out.println("Error loading accounts: " + e.getMessage());
-        }
-
-        return accounts;
     }
 }

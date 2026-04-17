@@ -49,6 +49,15 @@ public class Bank {
         return null;
     }
 
+    public BankAccount login(String accNo, String password){
+        for(int i = 0; i < accounts.size(); i++){
+            if(accounts.get(i).getAccountNumber().equals(accNo) && accounts.get(i).checkPassword(password)){
+                return accounts.get(i);
+            }
+        }
+        return null;
+    }
+
     public void save() {
         FileManager.saveAccounts(accounts);
         FileManager.saveTransactions(accounts);

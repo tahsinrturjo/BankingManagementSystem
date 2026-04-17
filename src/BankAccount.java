@@ -4,13 +4,15 @@ public class BankAccount {
     private String accountNumber;
     private String ownerName;
     private double balance;
+    private String password;
     protected ArrayList<Transaction> transactions;
 
     public BankAccount(){}
 
-    public BankAccount(String ownerName, double balance){
+    public BankAccount(String ownerName, double balance, String input){
         this.ownerName = ownerName;
         this.balance = balance;
+        this.password = input;
         this.transactions = new ArrayList<>();
     }
 
@@ -26,6 +28,8 @@ public class BankAccount {
     public String getOwnerName() {
         return ownerName;
     }
+
+    public String getPassword() { return password; }
 
     //SETTERS
     public void setAccountNumber(String accountNumber) {
@@ -68,6 +72,15 @@ public class BankAccount {
         }
     }
 
+    public boolean checkPassword(String input){
+        if(password.equals(input)){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public void printHistory(){
         if(transactions.isEmpty()){
             System.out.println("No Transaction History");
@@ -89,8 +102,8 @@ public class BankAccount {
 class SavingsAccount extends BankAccount{
     private double interestRate;
 
-    public SavingsAccount(String ownerName, double balance, double interestRate){
-        super(ownerName, balance);
+    public SavingsAccount(String ownerName, double balance, double interestRate, String password){
+        super(ownerName, balance, password);
         this.interestRate = interestRate;
     }
 
@@ -108,8 +121,8 @@ class SavingsAccount extends BankAccount{
 class CurrentAccount extends BankAccount{
     private double overdraftLimit;
 
-    public CurrentAccount(String ownerName, double balance, double overdraftLimit){
-        super(ownerName, balance);
+    public CurrentAccount(String ownerName, double balance, double overdraftLimit, String password){
+        super(ownerName, balance, password);
         this.overdraftLimit = overdraftLimit;
     }
 
