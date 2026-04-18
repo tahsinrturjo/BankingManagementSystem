@@ -3,10 +3,21 @@ import java.util.ArrayList;
 public class Bank {
 
     private final ArrayList<BankAccount> accounts;
+    private final ArrayList<User> users;
 
     public Bank(){
-        accounts = FileManager.loadAccounts();;
+        accounts = FileManager.loadAccounts();
+        users = FileManager.loadUsers(accounts);
+        if (users.isEmpty()) {
+            users.add(new Admin("admin", "Administrator", "admin123"));
+        }
         FileManager.loadTransactions(accounts);
+    }
+
+    public User addUser(User user) {
+        users.add(user);
+        FileManager.saveUsers(users);
+        return user;
     }
 
     public BankAccount addAccount(BankAccount account){
@@ -61,5 +72,14 @@ public class Bank {
     public void save() {
         FileManager.saveAccounts(accounts);
         FileManager.saveTransactions(accounts);
+    }
+
+    public User loginUser(String username, String password){
+        for(int i = 0; i < users.size(); i++){
+            if(users.get(i).getUsername().equals(username) && users.get(i).getPassword().equals(password)){
+                return users.get(i);
+            }
+        }
+        return null;
     }
 }

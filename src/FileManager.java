@@ -7,6 +7,70 @@ public class FileManager {
     private static final String FILE_NAME = "accounts.csv";
     private static final String TRANSACTIONS_FILE = "transactions.csv";
 
+    public static void saveUsers(ArrayList<User> users) {
+        try {
+            FileWriter fw = new FileWriter("users.csv");
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            for (int i = 0; i < users.size(); i++) {
+                User u = users.get(i);
+                if (u instanceof Admin) {
+                    bw.write(u.getUsername() + ",ADMIN," + u.getName() + "," + u.getPassword());
+                } else if (u instanceof Customer) {
+                    Customer c = (Customer) u;
+                    bw.write(u.getUsername() + ",CUSTOMER," + u.getName() + "," + u.getPassword() + "," + c.getAccount().getAccountNumber());
+                }
+                bw.newLine();
+            }
+
+            bw.close();
+        } catch (IOException e) {
+            System.out.println("Error saving users: " + e.getMessage());
+        }
+    }
+
+    public static ArrayList<User> loadUsers(ArrayList<BankAccount> accounts) {
+        ArrayList<User> users = new ArrayList<>();
+        File file = new File("users.csv");
+
+        if (!file.exists()) return users;
+
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 4) continue;
+
+                String username = parts[0];
+                String type     = parts[1];
+                String name     = parts[2];
+                String password = parts[3];
+
+                if (type.equals("ADMIN")) {
+                    users.add(new Admin(username, name, password));
+                } else if (type.equals("CUSTOMER") && parts.length == 5) {
+                    String accNo = parts[4];
+                    // find the linked BankAccount
+                    for (int i = 0; i < accounts.size(); i++) {
+                        if (accounts.get(i).getAccountNumber().equals(accNo)) {
+                            users.add(new Customer(username, name, password, accounts.get(i)));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            br.close();
+        } catch (IOException e) {
+            System.out.println("Error loading users: " + e.getMessage());
+        }
+
+        return users;
+    }
+
     public static void saveAccounts(ArrayList<BankAccount> accounts) {
         try {
             FileWriter fw = new FileWriter(FILE_NAME);
