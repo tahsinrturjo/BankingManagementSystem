@@ -8,9 +8,11 @@ public class Main{
         Bank bank = new Bank();
         int choice = 0;
         BankAccount loggedInAccount = null;
+        User loggedInUser = null;
+        int adminChoice = 0;
 
-        System.out.println("\nWelcome to TRT Banking System");
-        System.out.println("1. Create Account\n2. Login");
+        System.out.println("\nWelcome to TRT Banking");
+        System.out.println("1. Create Account\n2. User Login\n3. Admin Login");
         System.out.println("Enter your Choice: ");
         int startChoice = scanner.nextInt();
 
@@ -24,6 +26,8 @@ public class Main{
             String name = scanner.nextLine();
             System.out.println("Enter a Password: ");
             String password = scanner.nextLine();
+            System.out.println("Enter A Username: ");
+            String username = scanner.nextLine();
             System.out.println("Enter Initial Balance: ");
             double balance = 0;
 
@@ -51,6 +55,8 @@ public class Main{
                 }
 
                 if(acc != null){
+                    Customer customer = new Customer(username, name, password, acc);
+                    bank.addUser(customer);
                     bank.addAccount(acc);
                     System.out.println(message + acc);
                 }
@@ -58,35 +64,84 @@ public class Main{
             }
         }
 
-        while(loggedInAccount == null){
+        while(loggedInUser == null){
             scanner.nextLine();
-            System.out.println("Enter Account Number: ");
-            String accNo = scanner.nextLine();
-            System.out.println("Enter Your Password: ");
+            System.out.println("Username: ");
+            String username = scanner.nextLine();
+            System.out.println("Password: ");
             String password = scanner.nextLine();
 
-            loggedInAccount = bank.login(accNo, password);
+            loggedInUser = bank.loginUser(username, password);
 
-            if(loggedInAccount == null){
+            if(loggedInUser == null){
                 System.out.println("Invalid Credentials. Please Try Again.");
             }
         }
 
-        System.out.println("Login Successful. Welcome " + loggedInAccount.getOwnerName());
+        System.out.println("Login Successful. Welcome " + loggedInUser.getName());
 
-        while(choice != 7){
-            showMenu();
-            System.out.println("Enter Your Option: ");
-            choice = scanner.nextInt();
-            handleChoice(choice, bank, scanner, loggedInAccount);
+        if(loggedInUser instanceof Admin){
+            while(adminChoice != 3){
+                showAdminMenu();
+                System.out.println("Enter Your Option: ");
+                adminChoice = scanner.nextInt();
+                handleAdminChoice(adminChoice, bank, scanner);
+            }
+        }
+        else if (loggedInUser instanceof Customer) {
+
+            while(choice != 6){
+                showMenu();
+                System.out.println("Enter Your Option: ");
+                choice = scanner.nextInt();
+                handleChoice(choice, bank, scanner, ((Customer) loggedInUser).getAccount());
+            }
         }
 
         scanner.close();
     }
 
+    private static void showAdminMenu(){
+        System.out.println("1. View All Accounts\n2. Delete An Account\n3. Exit");
+    }
+
     private static void showMenu(){
-        System.out.println("1. Deposit \n2. Withdraw \n3. View Balance \n4. See All Accounts");
-        System.out.println("5. Delete Account\n6. View Transaction History\n7. Exit");
+        System.out.println("1. Deposit \n2. Withdraw \n3. View Balance");
+        System.out.println("4. Delete Account\n5. View Transaction History\n6. Exit");
+    }
+
+    private static void handleAdminChoice(int choice, Bank bank, Scanner scanner){
+        boolean running = true;
+        switch (choice){
+            case 1:
+                bank.listAccount();
+                break;
+            case 2:
+                System.out.println("Enter the Account Number: ");
+                scanner.nextLine();
+                String accNo = scanner.nextLine();
+
+                BankAccount toDelete = bank.findAccount(accNo);
+
+                if(toDelete == null){
+                    System.out.println("Account Not Found.");
+                }
+                else{
+                    System.out.println("Are You Sure you want to Delete? " + bank.findAccount(accNo).getOwnerName() + " Y/N: ");
+                    String sure = scanner.nextLine().toLowerCase();
+
+                    if(sure.equals("y")){
+                        bank.deleteAccount(accNo);
+                    }
+                }
+                break;
+
+            case 3:
+                System.out.println("Thank You for Using our System. GoodBye");
+                break;
+            default:
+                System.out.println("Invalid Choice. Try Again...");
+        }
     }
 
     private static void handleChoice(int choice, Bank bank, Scanner scanner, BankAccount loggedInAccount){
@@ -152,11 +207,8 @@ public class Main{
                     System.out.println("Account Not Found");
                 }
                 break;
-            case 4:
-                bank.listAccount();
-                break;
 
-            case 5:
+            case 4:
                 if(loggedInAccount != null){
                     String choose = "";
                     scanner.nextLine();
@@ -179,7 +231,7 @@ public class Main{
                 }
                 break;
 
-            case 6:
+            case 5:
                 if(loggedInAccount != null){
                     loggedInAccount.printHistory();
                 }
@@ -188,7 +240,7 @@ public class Main{
                 }
                 break;
 
-            case 7:
+            case 6:
                 System.out.println("Thank You for Using our System. GoodBye");
                 break;
 
