@@ -58,18 +58,17 @@ public class BankAccount {
 
     //METHODS
     public boolean withdraw(double amount){
-        if(this.balance == 0){
-            System.out.println("Withdrawal cannot be zero.");
+        if(amount <= 0){
+            System.out.println("Withdrawal amount must be greater than zero.");
+            return false;
         }
         if(this.balance < amount){
             System.out.println("Insufficient Balance");
             return false;
         }
-        else {
-            balance -= amount;
-            transactions.add(new Transaction("Withdrawal", amount));
-            return true;
-        }
+        balance -= amount;
+        transactions.add(new Transaction("Withdrawal", amount));
+        return true;
     }
 
     public boolean checkPassword(String input){

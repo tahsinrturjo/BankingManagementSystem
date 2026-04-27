@@ -4,6 +4,7 @@ public class Bank {
 
     private final ArrayList<BankAccount> accounts;
     private final ArrayList<User> users;
+    private int nextAccNo;
 
     public Bank(){
         accounts = FileManager.loadAccounts();
@@ -13,6 +14,22 @@ public class Bank {
             FileManager.saveUsers(users);
         }
         FileManager.loadTransactions(accounts);
+        nextAccNo = computeNextAccNo();
+    }
+
+    private int computeNextAccNo(){
+        int max = 0;
+        for(int i = 0; i < accounts.size(); i++){
+            String accNo = accounts.get(i).getAccountNumber();
+            try{
+                int num = Integer.parseInt(accNo.substring(3));
+                if(num > max) max = num;
+            }
+            catch(NumberFormatException e){
+
+            }
+        }
+        return max + 1;
     }
 
     public User addUser(User user) {
@@ -23,7 +40,7 @@ public class Bank {
     }
 
     public BankAccount addAccount(BankAccount account){
-        String accNo = "ACC" + String.format("%03d", accounts.size() + 1);
+        String accNo = "ACC" + String.format("%03d", nextAccNo++);
         account.setAccountNumber(accNo);
         accounts.add(account);
         FileManager.saveAccounts(accounts);
@@ -56,7 +73,20 @@ public class Bank {
             if (accounts.get(i).getAccountNumber().equals(accNo)) {
                 BankAccount removed = accounts.get(i);
                 accounts.remove(i);
+
+                // Also remove the linked Customer from users
+                for (int j = 0; j < users.size(); j++){
+                    if(users.get(j) instanceof Customer){
+                        Customer c = (Customer) users.get(j);
+                        if(c.getAccount().getAccountNumber().equals(accNo)){
+                            users.remove(j);
+                            break;
+                        }
+                    }
+                }
+
                 FileManager.saveAccounts(accounts);
+                FileManager.saveUsers(users);
                 return removed;
             }
         }

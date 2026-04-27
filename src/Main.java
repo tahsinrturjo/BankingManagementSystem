@@ -282,11 +282,3 @@ public class Main{
     }
 
 }
-
-/* A GUI-based Banking Management System, designed to simulate real-world banking operations.
-The system supports two user roles — Admin and Customer. Customers can manage accounts,
-deposit and withdraw funds, transfer money, view transaction history. Admins can manage users,
-approve or reject loans, and monitor all transactions.
- */
-
-//Choice Try Catch
