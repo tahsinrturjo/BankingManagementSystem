@@ -4,10 +4,10 @@ import java.util.Scanner;
 public class Main{
 
     public static void main(String[] args){
+
         Scanner scanner = new Scanner(System.in);
         Bank bank = new Bank();
         int choice = 0;
-        BankAccount loggedInAccount = null;
         User loggedInUser = null;
         int adminChoice = 0;
 
@@ -37,7 +37,6 @@ public class Main{
             catch (InputMismatchException e){
                 System.out.println("Invalid Input. Please enter a number");
                 scanner.nextLine();
-                choice = 0;
                 allgood = false;
             }
             if(allgood){
@@ -56,8 +55,8 @@ public class Main{
 
                 if(acc != null){
                     Customer customer = new Customer(username, name, password, acc);
-                    bank.addUser(customer);
                     bank.addAccount(acc);
+                    bank.addUser(customer);
                     System.out.println(message + acc);
                 }
 
@@ -90,7 +89,7 @@ public class Main{
         }
         else if (loggedInUser instanceof Customer) {
 
-            while(choice != 6){
+            while(choice != 7){
                 showMenu();
                 System.out.println("Enter Your Option: ");
                 choice = scanner.nextInt();
@@ -107,14 +106,14 @@ public class Main{
 
     private static void showMenu(){
         System.out.println("1. Deposit \n2. Withdraw \n3. View Balance");
-        System.out.println("4. Delete Account\n5. View Transaction History\n6. Exit");
+        System.out.println("4. Delete Account\n5. View Transaction History\n6. Transfer\n7. Exit");
     }
 
     private static void handleAdminChoice(int choice, Bank bank, Scanner scanner){
         boolean running = true;
         switch (choice){
             case 1:
-                bank.listAccount();
+                System.out.println(bank.listAccount());
                 break;
             case 2:
                 System.out.println("Enter the Account Number: ");
@@ -183,7 +182,6 @@ public class Main{
                     catch (InputMismatchException e){
                         System.out.println("Invalid Input. Please enter a number");
                         scanner.nextLine();
-                        choice = 0;
                         valid = false;
                     }
 
@@ -218,7 +216,6 @@ public class Main{
                     if(choose.equals("y")){
                         bank.deleteAccount(loggedInAccount.getAccountNumber());
                         System.out.println("Account Deleted Successfully\n" + loggedInAccount );
-                        choice = 7;
                         break;
                     }
                     else {
@@ -241,6 +238,41 @@ public class Main{
                 break;
 
             case 6:
+                if(loggedInAccount != null){
+                    System.out.println("Enter Recipient Account Number: ");
+                    scanner.nextLine();
+                    String recipientAccNo = scanner.nextLine();
+                    BankAccount recipient = bank.findAccount(recipientAccNo);
+
+                    if(recipient == null){
+                        System.out.println("Cannot find Recipient Account");
+                        break;
+                    }
+
+                    if(recipient.getAccountNumber().equals(loggedInAccount.getAccountNumber())){
+                        System.out.println("You cannot Transfer to your Own Account.");
+                        break;
+                    }
+
+                    System.out.println("Enter Amount to Transfer: ");
+                    double transferAmount = scanner.nextDouble();
+
+                    boolean deducted = loggedInAccount.withdraw(transferAmount);
+
+                    if(deducted){
+                        recipient.deposit(transferAmount);
+                        bank.save();
+                        System.out.println("Amount Transferred Successfully." + loggedInAccount);
+                    }
+                    break;
+
+                }
+                else {
+                    System.out.println("Account Not Found");
+                }
+                break;
+
+            case 7:
                 System.out.println("Thank You for Using our System. GoodBye");
                 break;
 
@@ -256,3 +288,5 @@ The system supports two user roles — Admin and Customer. Customers can manage 
 deposit and withdraw funds, transfer money, view transaction history. Admins can manage users,
 approve or reject loans, and monitor all transactions.
  */
+
+//Choice Try Catch

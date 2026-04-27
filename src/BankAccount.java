@@ -94,7 +94,7 @@ public class BankAccount {
 
     @Override
     public String toString() {
-        return String.format("Account [%s] | Owner: %s | Balance: %.2f",
+        return String.format("Account [%s] | Owner: %s | Balance: $%.2f",
                 accountNumber, ownerName, balance);
     }
 }

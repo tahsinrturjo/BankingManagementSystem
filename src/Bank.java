@@ -10,12 +10,14 @@ public class Bank {
         users = FileManager.loadUsers(accounts);
         if (users.isEmpty()) {
             users.add(new Admin("admin", "Administrator", "admin123"));
+            FileManager.saveUsers(users);
         }
         FileManager.loadTransactions(accounts);
     }
 
     public User addUser(User user) {
         users.add(user);
+        System.out.println("Saving " + users.size() + " users"); //DEBUG LINE
         FileManager.saveUsers(users);
         return user;
     }
@@ -38,14 +40,15 @@ public class Bank {
         return null;
     }
 
-    public void listAccount(){
+    public String listAccount(){
         if(accounts.isEmpty()){
-            System.out.println("No Accounts Found");
-            return;
+            return "No Accounts Found";
         }
-        for(int i = 0; i<accounts.size(); i++){
-            System.out.println("\n" + accounts.get(i) );
+        String result = "";
+        for(int i = 0; i < accounts.size(); i++){
+            result += accounts.get(i).toString() + "\n";
         }
+        return result;
     }
 
     public BankAccount deleteAccount(String accNo){
@@ -67,6 +70,10 @@ public class Bank {
             }
         }
         return null;
+    }
+
+    public int getAccountCount(){
+        return accounts.size();
     }
 
     public void save() {
