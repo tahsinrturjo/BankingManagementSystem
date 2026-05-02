@@ -4,6 +4,10 @@ out/
 !**/src/test/**/out/
 .kotlin
 
+accounts.csv
+users.csv
+transactions.csv
+
 ### Eclipse ###
 .apt_generated
 .classpath
